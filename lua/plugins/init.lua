@@ -11,6 +11,8 @@ local packer = require("packer")
 return packer.startup({
   function (use)
     use 'wbthomason/packer.nvim'
+    use { 'nvim-lua/plenary.nvim' }
+
     use { 'nvim-lua/popup.nvim' } -- what uses this?
     use { 'EdenEast/nightfox.nvim', config = function() vim.cmd 'colorscheme nightfox' end }
 
@@ -36,10 +38,9 @@ return packer.startup({
       end
     }
 
-    use { 'nvim-telescope/telescope.nvim',
-      after = 'auto-session',
+    vim.g.loaded_session_lens = 1
+    use { 'nvim-telescope/telescope.nvim', 
       requires = { 
-        'nvim-lua/plenary.nvim',
         'nvim-telescope/telescope-ui-select.nvim',
         'nvim-telescope/telescope-dap.nvim',
         'rmagatti/session-lens'
@@ -60,17 +61,17 @@ return packer.startup({
     -- setup the language server and languages
     use { 'neovim/nvim-lspconfig' }
 
-    use { 'hrsh7th/vim-vsnip' }
-    use { 'hrsh7th/nvim-cmp', 
-      after = { 'nvim-lspconfig', 'popup.nvim', 'vim-vsnip' },
+    use { 'hrsh7th/nvim-cmp',
       requires = {
+        { 'hrsh7th/vim-vsnip' },
         { 'hrsh7th/cmp-nvim-lsp' },
-        { 'hrsh7th/cmp-vsnip' },
         { 'hrsh7th/cmp-path' },
         { 'hrsh7th/cmp-buffer' }
       },
       config = function() require("plugins.nvim-cmp").setup() end
     }
+    -- This has to be after since it's plugin after script expects cmp to be available
+    use { 'hrsh7th/cmp-vsnip', after="nvim-cmp" }
     
     -- setup the test functionality
     use { 'rcarriga/vim-ultest', 
@@ -85,9 +86,11 @@ return packer.startup({
     }
 
     use { 'simrat39/rust-tools.nvim', 
-      after = 'nvim-lspconfig',
       config = function() require("plugins.rust-tools").setup() end
     }
+    if packer_bootstrap then
+      packer.sync()
+    end
   end,
   config = {
     display = {
